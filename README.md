@@ -868,11 +868,6 @@ github:
 The `languages` values are the [CodeQL language identifiers](https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-default-setup-configuration) accepted by GitHub,
 currently `actions`, `c-cpp`, `csharp`, `go`, `java-kotlin`, `javascript-typescript`, `python`, `ruby` and `swift`.
 
-Code scanning requires GitHub Actions to be enabled on the repository.
-Removing (or commenting out) the `code_scanning` section disables default setup again,
-but only if it was previously managed via `.asf.yaml`;
-a setup enabled manually through the GitHub UI is left untouched.
-
 > [!WARNING]
 > Projects with an existing *advanced setup* (a committed CodeQL workflow file) should not enable default setup, as the two approaches conflict.
 
