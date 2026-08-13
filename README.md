@@ -70,6 +70,7 @@ It operates on a per-branch basis, meaning you can have different settings for d
       <li><a href="#pages">GitHub Pages</a></li>
       <li><a href="#pull_requests">Pull Request settings</a></li>
       <li><a href="#copilot_code_review">Copilot code review</a></li>
+      <li><a href="#code_scanning">Code scanning (CodeQL)</a></li>
       <li><a href="#rulesets">Rulesets</a></li>
       <li><a href="#merge">Merge buttons</a></li>
       <li><a href="#repo_features">Repository features</a></li>
@@ -839,6 +840,41 @@ Set `enabled: false` to disable this behavior. Removing the `copilot_code_review
 As an alternative, you can configure Copilot review through [`rulesets`](#rulesets). Validation fails if both
 `copilot_code_review` and `rulesets` overlap, either by managing a ruleset named `Copilot Code Review`
 or by defining a `copilot_code_review` rule type in `rulesets`.
+
+<h3 id="code_scanning">Code scanning (CodeQL)</h3>
+
+Projects can enable [code scanning with CodeQL default setup](https://docs.github.com/en/code-security/code-scanning/enabling-code-scanning/configuring-default-setup-for-code-scanning) on their repository.
+GitHub automatically analyzes the code on pushes and pull requests,
+and alerts appear under the repository's Security tab:
+
+~~~yaml
+github:
+  code_scanning: true
+~~~
+
+For more control over the setup, use a map of settings instead of a boolean
+(its presence implies that code scanning is enabled):
+
+~~~yaml
+github:
+  code_scanning:
+    query_suite: extended       # optional, "default" or "extended", default "default"
+    threat_model: remote        # optional, "remote" or "remote_and_local", left unmanaged if omitted
+    languages:                  # optional, restricts analysis to these languages;
+      - java-kotlin             # if omitted, GitHub auto-detects eligible languages
+      - python
+~~~
+
+The `languages` values are the [CodeQL language identifiers](https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-default-setup-configuration) accepted by GitHub,
+currently `actions`, `c-cpp`, `csharp`, `go`, `java-kotlin`, `javascript-typescript`, `python`, `ruby` and `swift`.
+
+Code scanning requires GitHub Actions to be enabled on the repository.
+Removing (or commenting out) the `code_scanning` section disables default setup again,
+but only if it was previously managed via `.asf.yaml`;
+a setup enabled manually through the GitHub UI is left untouched.
+
+> [!WARNING]
+> Projects with an existing *advanced setup* (a committed CodeQL workflow file) should not enable default setup, as the two approaches conflict.
 
 <h3 id="rulesets">Rulesets</h3>
 
