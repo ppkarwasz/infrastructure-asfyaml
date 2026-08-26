@@ -861,12 +861,20 @@ github:
     query_suite: extended       # optional, "default" or "extended", left unmanaged if omitted
     threat_model: remote        # optional, "remote" or "remote_and_local", left unmanaged if omitted
     languages:                  # optional, restricts analysis to these languages;
-      - java-kotlin             # if omitted, GitHub auto-detects eligible languages
+      - java-kotlin             # selected automatically by GitHub if never set
       - python
 ~~~
 
 The `languages` values are the [CodeQL language identifiers](https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-default-setup-configuration) accepted by GitHub,
 currently `actions`, `c-cpp`, `csharp`, `go`, `java-kotlin`, `javascript-typescript`, `python`, `ruby` and `swift`.
+
+Settings applied through `.asf.yaml` stick on GitHub's side:
+removing a key from the map keeps its last applied value,
+it does not revert it.
+To change the analyzed languages, list them explicitly.
+To return to fully automatic language selection,
+disable the setup and re-enable it in a later commit;
+note that this also resets `query_suite` and `threat_model` to their GitHub defaults.
 
 Setting `code_scanning: false`,
 or removing the section,
