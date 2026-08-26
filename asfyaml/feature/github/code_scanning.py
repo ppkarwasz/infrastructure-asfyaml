@@ -106,18 +106,18 @@ def code_scanning(self: ASFGitHubFeature):
 
     settings: dict[str, Any] = {}
     if scanning is None:
-        if not was_previously_configured:
-            # Never managed by .asf.yaml, leave repository settings untouched.
-            return
-        # Section removed after having been managed by .asf.yaml: disable the setup.
-        enabled = False
+        # Section absent
+        configured = False
     elif isinstance(scanning, bool):
         # Simple form: code_scanning: true/false
-        enabled = scanning
+        configured = scanning
     else:
         # Map form: the presence of settings implies the setup is enabled.
-        enabled = True
+        configured = True
         settings = scanning
+
+    if not configured and not was_previously_configured:
+        return
 
     if self.noop("code_scanning"):
         return
@@ -125,7 +125,7 @@ def code_scanning(self: ASFGitHubFeature):
     current = get_default_setup(self)
     currently_configured = current.get("state") == "configured"
 
-    if enabled:
+    if configured:
         desired: dict[str, Any] = {
             "state": "configured",
             "query_suite": settings.get("query_suite", "default"),

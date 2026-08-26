@@ -319,9 +319,8 @@ def test_patch_202_accepted_is_success():
 def test_disable_patches_not_configured():
     requester = FakeRequester(state="configured", query_suite="default")
     feature = FakeFeature(
-        # Never previously managed by .asf.yaml, but explicit intent wins.
         yaml={"code_scanning": False},
-        previous_yaml={},
+        previous_yaml={"code_scanning": True},
         requester=requester,
     )
 
@@ -329,6 +328,20 @@ def test_disable_patches_not_configured():
 
     assert [call["method"] for call in requester.calls] == ["GET", "PATCH"]
     assert requester.calls[1]["input"] == {"state": "not-configured"}
+
+
+def test_disable_skips_when_never_managed():
+    requester = FakeRequester(state="configured", query_suite="default")
+    feature = FakeFeature(
+        # Never managed by .asf.yaml: a setup enabled by INFRA is left untouched.
+        yaml={"code_scanning": False},
+        previous_yaml={},
+        requester=requester,
+    )
+
+    code_scanning(feature)
+
+    assert requester.calls == []
 
 
 def test_disable_skips_when_not_configured():

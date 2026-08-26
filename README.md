@@ -868,6 +868,12 @@ github:
 The `languages` values are the [CodeQL language identifiers](https://docs.github.com/en/rest/code-scanning/code-scanning#update-a-code-scanning-default-setup-configuration) accepted by GitHub,
 currently `actions`, `c-cpp`, `csharp`, `go`, `java-kotlin`, `javascript-typescript`, `python`, `ruby` and `swift`.
 
+Setting `code_scanning: false`,
+or removing the section,
+disables the default setup,
+but only if it was previously managed through `.asf.yaml`.
+A setup enabled by INFRA is left untouched.
+
 > [!WARNING]
 > Projects with an existing *advanced setup* (a committed CodeQL workflow file) should not enable default setup, as the two approaches conflict.
 
