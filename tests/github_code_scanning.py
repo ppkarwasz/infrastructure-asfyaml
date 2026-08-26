@@ -116,6 +116,7 @@ class FakeRequester:
         languages: list[str] | None = None,
         patch_status: int = 200,
         patch_body: str = "{}",
+        get_body: str | None = None,
     ):
         self.state = state
         self.query_suite = query_suite
@@ -123,11 +124,14 @@ class FakeRequester:
         self.languages = languages or []
         self.patch_status = patch_status
         self.patch_body = patch_body
+        self.get_body = get_body
         self.calls: list[dict[str, Any]] = []
 
     def requestJson(self, method: str, url: str, input: dict[str, Any] | None = None):  # noqa: N802
         self.calls.append({"method": method, "url": url, "input": input})
         if method == "GET":
+            if self.get_body is not None:
+                return 200, {}, self.get_body
             return (
                 200,
                 {},
@@ -314,6 +318,31 @@ def test_patch_202_accepted_is_success():
     code_scanning(feature)
 
     assert [call["method"] for call in requester.calls] == ["GET", "PATCH"]
+
+
+def test_patch_other_2xx_is_success():
+    requester = FakeRequester(patch_status=204, patch_body="")
+    feature = FakeFeature(
+        yaml={"code_scanning": True},
+        previous_yaml={},
+        requester=requester,
+    )
+
+    code_scanning(feature)
+
+    assert [call["method"] for call in requester.calls] == ["GET", "PATCH"]
+
+
+def test_get_non_json_raises_helpful_error():
+    requester = FakeRequester(get_body="<html>Service unavailable</html>")
+    feature = FakeFeature(
+        yaml={"code_scanning": True},
+        previous_yaml={},
+        requester=requester,
+    )
+
+    with YamlTest(Exception, "expected JSON", "").ctx():
+        code_scanning(feature)
 
 
 def test_disable_patches_not_configured():

@@ -39,7 +39,13 @@ def get_default_setup(self: ASFGitHubFeature) -> dict[str, Any]:
     status, _headers, body = self.ghrepo._requester.requestJson("GET", _default_setup_endpoint(self))
     repo = f"{self.repository.org_id}/{self.repository.name}"
     if status == 200:
-        payload = json.loads(body)
+        try:
+            payload = json.loads(body)
+        except json.JSONDecodeError:
+            raise Exception(
+                f"Unexpected response format while fetching code scanning default setup: "
+                f"expected JSON, got: {body[:200]}"
+            )
         if isinstance(payload, dict):
             return payload
         raise Exception(
@@ -58,7 +64,7 @@ def get_default_setup(self: ASFGitHubFeature) -> dict[str, Any]:
 
 def update_default_setup(self: ASFGitHubFeature, payload: dict[str, Any]) -> None:
     status, _headers, body = self.ghrepo._requester.requestJson("PATCH", _default_setup_endpoint(self), input=payload)
-    if status in (200, 202):
+    if 200 <= status < 300:
         return
     detail = _parse_detail(body)
     repo = f"{self.repository.org_id}/{self.repository.name}"
