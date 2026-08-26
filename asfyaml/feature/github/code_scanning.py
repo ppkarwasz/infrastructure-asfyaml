@@ -143,7 +143,9 @@ def code_scanning(self: ASFGitHubFeature):
             desired["languages"] = list(settings["languages"])
         if currently_configured and _matches_current(current, desired):
             return
-        print(f"[github] Enabling CodeQL code scanning default setup (query_suite={desired.get('query_suite', 'unmanaged')})")
+        print(
+            f"[github] Enabling CodeQL code scanning default setup (query_suite={desired.get('query_suite', 'unmanaged')})"
+        )
         update_default_setup(self, desired)
     else:
         if not currently_configured:
