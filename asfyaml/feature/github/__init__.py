@@ -154,7 +154,7 @@ class ASFGitHubFeature(ASFYamlFeature, name="github"):
             strictyaml.Optional("code_scanning"): strictyaml.Bool()
             | strictyaml.Map(
                 {
-                    strictyaml.Optional("query_suite", default="default"): strictyaml.Enum(["default", "extended"]),
+                    strictyaml.Optional("query_suite"): strictyaml.Enum(["default", "extended"]),
                     strictyaml.Optional("threat_model"): strictyaml.Enum(["remote", "remote_and_local"]),
                     # Language identifiers are validated by GitHub, not here, as the set grows over time.
                     strictyaml.Optional("languages"): strictyaml.UniqueSeq(strictyaml.Str()),

@@ -205,7 +205,7 @@ def test_enable_configures_default_setup():
 
     assert [call["method"] for call in requester.calls] == ["GET", "PATCH"]
     assert requester.calls[1]["url"] == DEFAULT_SETUP_URL
-    assert requester.calls[1]["input"] == {"state": "configured", "query_suite": "default"}
+    assert requester.calls[1]["input"] == {"state": "configured"}
 
 
 def test_enable_with_all_settings():

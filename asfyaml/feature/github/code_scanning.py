@@ -84,12 +84,13 @@ def update_default_setup(self: ASFGitHubFeature, payload: dict[str, Any]) -> Non
             raise Exception(f"Unexpected response while updating code scanning default setup: HTTP {status}: {detail}")
 
 
-def _matches_current(current: dict[str, Any], desired: dict[str, Any]) -> bool:
-    """True if every field in the desired PATCH payload already matches the GET response.
+def _matches_current(current: dict[str, Any], diff: dict[str, Any]) -> bool:
+    """True if every field explicitly set in the PATCH diff already has the same value
+    in the current GET response.
 
-    Fields absent from the payload (auto-detected languages, unmanaged threat_model)
-    are not compared; languages compare as sets."""
-    for key, value in desired.items():
+    Fields absent from the diff (unmanaged query_suite/threat_model, auto-detected
+    languages) are not compared; languages compare as sets."""
+    for key, value in diff.items():
         if key == "languages":
             if set(value) != set(current.get("languages") or []):
                 return False
@@ -126,18 +127,17 @@ def code_scanning(self: ASFGitHubFeature):
     currently_configured = current.get("state") == "configured"
 
     if configured:
-        desired: dict[str, Any] = {
-            "state": "configured",
-            "query_suite": settings.get("query_suite", "default"),
-        }
+        desired: dict[str, Any] = {"state": "configured"}
         # Fields not specified in .asf.yaml are left for GitHub to manage (auto-detection).
+        if "query_suite" in settings:
+            desired["query_suite"] = settings["query_suite"]
         if "threat_model" in settings:
             desired["threat_model"] = settings["threat_model"]
         if "languages" in settings:
             desired["languages"] = list(settings["languages"])
         if currently_configured and _matches_current(current, desired):
             return
-        print(f"[github] Enabling CodeQL code scanning default setup (query_suite={desired['query_suite']})")
+        print(f"[github] Enabling CodeQL code scanning default setup (query_suite={desired.get('query_suite', 'unmanaged')})")
         update_default_setup(self, desired)
     else:
         if not currently_configured:

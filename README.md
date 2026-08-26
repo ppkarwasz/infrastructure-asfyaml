@@ -858,7 +858,7 @@ For more control over the setup, use a map of settings instead of a boolean
 ~~~yaml
 github:
   code_scanning:
-    query_suite: extended       # optional, "default" or "extended", default "default"
+    query_suite: extended       # optional, "default" or "extended", left unmanaged if omitted
     threat_model: remote        # optional, "remote" or "remote_and_local", left unmanaged if omitted
     languages:                  # optional, restricts analysis to these languages;
       - java-kotlin             # if omitted, GitHub auto-detects eligible languages
